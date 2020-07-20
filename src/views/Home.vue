@@ -4,7 +4,7 @@
       <p class="text-2xl text-blue-700 text-center mb-1">Sad Pepe DGG tracking</p>
       <div class="flex flex-row justify-center">
         <label for="online" class="text-md text-blue-600">Only show online users</label>
-        <input type="checkbox" name="online" id="online" v-model="onlineOnly" class="ml-2 mt-1"/>
+        <input type="checkbox" name="online" id="online" v-model="onlineOnly" class="ml-2 mt-1" />
       </div>
       <div class="text-sm text-blue-500 flex justify-around">
         <div>Users tracked: {{Object.keys(this.users).length}}</div>
@@ -14,6 +14,9 @@
       <p class="text-sm text-blue-500 text-center">
         Total uptime: {{prettyPrint(this.trackedTime)}}
       </p>
+      <a class="text-sm text-blue-500 text-center" href="https://github.com/Badtz13/sadpepe" target="_blank">
+        Report / Contribute
+      </a>
     </div>
     <div v-if="onlineOnly" class="flex flex-row flex-wrap justify-center">
       <user
@@ -95,7 +98,9 @@ export default {
       .ref('/info')
       .once('value', (snapshot) => {
         this.serverStart = new Date(snapshot.val().start).toLocaleString();
-        this.trackingStart = new Date(snapshot.val().trackingStart).toLocaleString();
+        this.trackingStart = new Date(
+          snapshot.val().trackingStart,
+        ).toLocaleString();
         this.trackedTime = Date.now() - snapshot.val().trackingStart;
       });
 
