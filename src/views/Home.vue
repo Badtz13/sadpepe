@@ -14,7 +14,7 @@
       <p class="text-sm text-blue-500 text-center">
         Total uptime: {{prettyPrint(this.trackedTime)}}
       </p>
-      <a class="text-sm text-blue-500 text-center" href="https://github.com/Badtz13/sadpepe" target="_blank">
+      <a class="text-sm text-blue-500 text-center block" href="https://github.com/Badtz13/sadpepe" target="_blank">
         Report / Contribute
       </a>
     </div>
