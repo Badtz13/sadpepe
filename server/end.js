@@ -34,5 +34,5 @@ firebase.database().ref('users').once('value', (snapshot) => {
       });
     }
   });
+  console.log('complete');
 });
-console.log('compete');

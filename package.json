@@ -8,7 +8,8 @@
     "lint": "vue-cli-service lint",
     "track": "node ./server/server.js",
     "end": "node ./server/end.js",
-    "reset": "node ./server/reset.js"
+    "reset": "node ./server/reset.js",
+    "fix": "node ./server/fix.js"
   },
   "dependencies": {
     "autoprefixer": "^9.8.4",

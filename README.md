@@ -22,6 +22,7 @@ This project is in two parts:
  yarn track - starts the tracking server
  yarn end - cleanly stops tracking, used when restarting the server
  yarn reset - resets all user data
+ yarn fix - adds time to users to account for server downtime, requires manual time calculations
  ```
  
  ## Web Site
