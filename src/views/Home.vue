@@ -129,7 +129,6 @@ export default {
           });
         });
         this.users = tempUsers.sort((a, b) => b.data.totalUnixTime - a.data.totalUnixTime);
-        console.log(this.users.slice(0, 5));
       });
   },
 };
