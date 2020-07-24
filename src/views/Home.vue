@@ -22,18 +22,18 @@
       <user
         v-for="user in onlineUsers"
         :key="user"
-        :uptime="trackedTime"
         :user="user"
-        :data="users[user]"
+        :data="users[user].data"
+        :online="users[user].online"
       />
     </div>
     <div v-else class="flex flex-row flex-wrap justify-center">
       <user
         v-for="user in Object.keys(this.users)"
         :key="user"
-        :uptime="trackedTime"
         :user="user"
-        :data="users[user]"
+        :data="users[user].data"
+        :online="users[user].online"
       />
     </div>
   </div>
@@ -86,10 +86,26 @@ export default {
       }
       return returnString;
     },
+    calculateTime(data) {
+      let totalUnixTime;
+      if (data.joined) {
+        if (data.time) {
+          totalUnixTime = data.time + (Date.now() - data.joined);
+        } else {
+          totalUnixTime = Date.now() - data.joined;
+        }
+      } else {
+        totalUnixTime = data.time;
+      }
+      return {
+        timeDisplay: this.prettyPrint(totalUnixTime),
+        onlinePercent: Math.floor((totalUnixTime / this.trackedTime) * 100),
+      };
+    },
   },
   computed: {
     onlineUsers() {
-      return Object.keys(this.users).filter(user => this.users[user].joined);
+      return Object.keys(this.users).filter(user => this.users[user].online);
     },
   },
   mounted() {
@@ -107,8 +123,17 @@ export default {
     firebase
       .database()
       .ref('/users/')
-      .on('value', (settingsSnapshot) => {
-        this.users = settingsSnapshot.val();
+      .once('value', (settingsSnapshot) => {
+        const tempUsers = {};
+        const usersResult = settingsSnapshot.val();
+        const userKeys = Object.keys(settingsSnapshot.val());
+        userKeys.forEach((user) => {
+          tempUsers[user] = {
+            data: this.calculateTime(usersResult[user]),
+            online: !!usersResult[user].joined,
+          };
+        });
+        this.users = tempUsers;
       });
   },
 };
