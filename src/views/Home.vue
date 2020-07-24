@@ -15,25 +15,14 @@
         Total uptime: {{prettyPrint(this.trackedTime)}}
       </p>
       <a class="text-sm text-blue-500 text-center block" href="https://github.com/Badtz13/sadpepe" target="_blank">
-        Report / Contribute
+        Report Issues / Contribute
       </a>
     </div>
-    <div v-if="onlineOnly" class="flex flex-row flex-wrap justify-center">
+    <div class="flex flex-row flex-wrap justify-center">
       <user
         v-for="user in onlineUsers"
-        :key="user"
-        :user="user"
-        :data="users[user].data"
-        :online="users[user].online"
-      />
-    </div>
-    <div v-else class="flex flex-row flex-wrap justify-center">
-      <user
-        v-for="user in Object.keys(this.users)"
-        :key="user"
-        :user="user"
-        :data="users[user].data"
-        :online="users[user].online"
+        :key="user.user"
+        :data="user"
       />
     </div>
   </div>
@@ -51,11 +40,11 @@ export default {
   },
   data() {
     return {
-      users: {},
+      users: [],
       serverStart: '',
       trackingStart: '',
       trackedTime: '',
-      onlineOnly: false,
+      onlineOnly: true,
     };
   },
   methods: {
@@ -105,7 +94,10 @@ export default {
   },
   computed: {
     onlineUsers() {
-      return Object.keys(this.users).filter(user => this.users[user].online);
+      if (this.onlineOnly) {
+        return this.users.filter(user => user.online);
+      }
+      return this.users;
     },
   },
   mounted() {
@@ -123,17 +115,18 @@ export default {
     firebase
       .database()
       .ref('/users/')
-      .once('value', (settingsSnapshot) => {
-        const tempUsers = {};
+      .on('value', (settingsSnapshot) => {
+        const tempUsers = [];
         const usersResult = settingsSnapshot.val();
         const userKeys = Object.keys(settingsSnapshot.val());
         userKeys.forEach((user) => {
-          tempUsers[user] = {
+          tempUsers.push({
+            user,
             data: this.calculateTime(usersResult[user]),
             online: !!usersResult[user].joined,
-          };
+          });
         });
-        this.users = tempUsers;
+        this.users = tempUsers.sort((a, b) => b.data.onlinePercent - a.data.onlinePercent);
       });
   },
 };
