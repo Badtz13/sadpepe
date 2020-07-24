@@ -45,7 +45,6 @@ export default {
       trackingStart: '',
       trackedTime: '',
       onlineOnly: true,
-      now: Date.now(),
     };
   },
   methods: {
@@ -80,9 +79,9 @@ export default {
       let totalUnixTime;
       if (data.joined) {
         if (data.time) {
-          totalUnixTime = data.time + (this.now - data.joined);
+          totalUnixTime = data.time + (Date.now() - data.joined);
         } else {
-          totalUnixTime = this.now - data.joined;
+          totalUnixTime = Date.now() - data.joined;
         }
       } else {
         totalUnixTime = data.time;
@@ -90,7 +89,9 @@ export default {
       return {
         timeDisplay: this.prettyPrint(totalUnixTime),
         totalUnixTime,
-        onlinePercent: Math.floor((totalUnixTime / this.trackedTime) * 100),
+        onlinePercent: Math.round(
+          (((totalUnixTime / (Date.now() - Date.parse(this.trackingStart))) * 100) * 100),
+        ) / 100,
       };
     },
   },
@@ -111,7 +112,7 @@ export default {
         this.trackingStart = new Date(
           snapshot.val().trackingStart,
         ).toLocaleString();
-        this.trackedTime = this.now - snapshot.val().trackingStart;
+        this.trackedTime = Date.now() - snapshot.val().trackingStart;
       });
 
     firebase
