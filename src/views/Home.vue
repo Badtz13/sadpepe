@@ -7,8 +7,8 @@
         <input type="checkbox" name="online" id="online" v-model="onlineOnly" class="ml-2 mt-1" />
       </div>
       <div class="text-sm text-blue-500 flex justify-around">
-        <div>Users tracked: {{Object.keys(this.users).length}}</div>
-        <div>Users online: {{onlineUsers.length}}</div>
+        <div>Users tracked: {{this.users.length}}</div>
+        <div>Users online: {{this.users.filter(user => user.online).length}}</div>
       </div>
       <p class="text-sm text-blue-500 text-center">Tracking started: {{this.trackingStart}}</p>
       <p class="text-sm text-blue-500 text-center">
