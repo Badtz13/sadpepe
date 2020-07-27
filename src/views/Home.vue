@@ -18,12 +18,15 @@
         Report Issues / Contribute
       </a>
     </div>
-    <div class="flex flex-row flex-wrap justify-center">
+    <div v-if="users.length !== 0" class="flex flex-row flex-wrap justify-center">
       <user
         v-for="user in onlineUsers"
         :key="user.user"
         :data="user"
       />
+    </div>
+    <div v-else class="flex justify-center mt-12">
+      <Donut />
     </div>
   </div>
 </template>
@@ -32,11 +35,13 @@
 import * as firebase from 'firebase/app';
 import 'firebase/database';
 import User from '@/components/User.vue';
+import Donut from '@/components/Donut.vue';
 
 export default {
   name: 'home',
   components: {
     User,
+    Donut,
   },
   data() {
     return {
