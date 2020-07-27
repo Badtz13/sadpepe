@@ -131,9 +131,8 @@ export default {
         totalUnixTime,
         onlinePercent:
           Math.round(
-            (totalUnixTime / this.trackedTime)
-              * 100
-              * 100,
+            (totalUnixTime / (Date.now() - Date.parse(this.trackingStart)))
+              * 10000,
           ) / 100,
         average: `${Math.floor(totalUnixTime / daysSinceStart / 3600000)} h/d`,
       };
