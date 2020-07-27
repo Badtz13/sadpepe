@@ -76,6 +76,8 @@ export default {
       return returnString;
     },
     calculateTime(data) {
+      const daysSinceStart = Math.floor((Date.now() - Date.parse(this.trackingStart)) / 86400000);
+
       let totalUnixTime;
       if (data.joined) {
         if (data.time) {
@@ -92,6 +94,7 @@ export default {
         onlinePercent: Math.round(
           (((totalUnixTime / (Date.now() - Date.parse(this.trackingStart))) * 100) * 100),
         ) / 100,
+        average: `${Math.floor((totalUnixTime / daysSinceStart) / 3600000)} h/d`,
       };
     },
   },
@@ -129,7 +132,7 @@ export default {
             online: !!usersResult[user].joined,
           });
         });
-        this.users = tempUsers.sort((a, b) => b.data.totalUnixTime - a.data.totalUnixTime);
+        this.users = tempUsers.slice(0, 50).sort((a, b) => b.data.totalUnixTime - a.data.totalUnixTime);
       });
   },
 };
