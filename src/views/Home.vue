@@ -132,7 +132,7 @@ export default {
             online: !!usersResult[user].joined,
           });
         });
-        this.users = tempUsers.slice(0, 50).sort((a, b) => b.data.totalUnixTime - a.data.totalUnixTime);
+        this.users = tempUsers.sort((a, b) => b.data.totalUnixTime - a.data.totalUnixTime);
       });
   },
 };
