@@ -6,6 +6,13 @@
         <label for="online" class="text-md text-blue-600">Only show online users</label>
         <input type="checkbox" name="online" id="online" v-model="onlineOnly" class="ml-2 mt-1" />
       </div>
+      <div class="w-full mx-auto flex justify-center">
+        <input
+          v-model="currentFilter"
+          autofocus="autofocus"
+          class="border rounded py-1 px-2 m-2 focus:outline-none text-blue-600"
+        />
+      </div>
       <div class="text-sm text-blue-500 flex justify-around">
         <div>Users tracked: {{this.users.length}}</div>
         <div>Users online: {{this.users.filter(user => user.online).length}}</div>
@@ -17,10 +24,11 @@
       <a class="text-sm text-blue-500 text-center block" href="https://github.com/Badtz13/sadpepe" target="_blank">
         Report Issues / Contribute
       </a>
+
     </div>
     <div v-if="users.length !== 0" class="flex flex-row flex-wrap justify-center">
       <user
-        v-for="user in onlineUsers"
+        v-for="user in shownUsers"
         :key="user.user"
         :data="user"
       />
@@ -50,6 +58,8 @@ export default {
       trackingStart: '',
       trackedTime: '',
       onlineOnly: true,
+      displayCount: 50,
+      currentFilter: '',
     };
   },
   methods: {
@@ -104,11 +114,24 @@ export default {
     },
   },
   computed: {
-    onlineUsers() {
-      if (this.onlineOnly) {
-        return this.users.filter(user => user.online);
-      }
-      return this.users;
+    shownUsers() {
+      return this.users.filter((user) => {
+        if (this.onlineOnly) {
+          if (!user.online) {
+            return false;
+          }
+        }
+        if (!user.user.toLowerCase().startsWith(this.currentFilter.toLowerCase())) {
+          return false;
+        }
+        return true;
+      }).slice(0, this.displayCount);
+
+
+      // if (this.onlineOnly) {
+      //   return this.users.filter(user => user.online).slice(0, this.displayCount);
+      // }
+      // return this.users.slice(0, this.displayCount);
     },
   },
   mounted() {
@@ -139,6 +162,13 @@ export default {
         });
         this.users = tempUsers.sort((a, b) => b.data.totalUnixTime - a.data.totalUnixTime);
       });
+
+    window.onscroll = () => {
+      if ((window.innerHeight + window.scrollY) >= document.body.scrollHeight) {
+        console.log('Bottom of page');
+        this.displayCount += 50;
+      }
+    };
   },
 };
 </script>

@@ -6,7 +6,6 @@ module.exports = {
     './src/**/*.vue',
     './src/**/*.ts',
     './src/components/*.vue',
-    './src/components/tiles/*.vue',
   ],
   separator: ':',
   theme: {
