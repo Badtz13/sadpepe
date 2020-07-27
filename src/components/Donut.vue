@@ -1,4 +1,5 @@
 <template>
+  <!-- placeholder for the donut  -->
   <div></div>
 </template>
 
@@ -9,6 +10,8 @@ export default {
 </script>
 
 <style scoped>
+
+/* animation keyframes  */
 @keyframes donut-spin {
   0% {
     transform: rotate(0deg);

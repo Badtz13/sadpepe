@@ -1,11 +1,19 @@
 <template>
   <div class="home">
+
+    <!-- informational heading -->
     <div class="container mx-auto w-64 my-4">
+
+      <!-- site heading -->
       <p class="text-2xl text-blue-700 text-center mb-1">Sad Pepe DGG tracking</p>
+
+      <!-- online filter  -->
       <div class="flex flex-row justify-center">
         <label for="online" class="text-md text-blue-600">Only show online users</label>
         <input type="checkbox" name="online" id="online" v-model="onlineOnly" class="ml-2 mt-1" />
       </div>
+
+      <!-- search filter  -->
       <div class="w-full mx-auto flex justify-center">
         <input
           v-model="currentFilter"
@@ -13,26 +21,35 @@
           class="border rounded py-1 px-2 m-2 focus:outline-none text-blue-600"
         />
       </div>
+
+      <!-- information display  -->
       <div class="text-sm text-blue-500 flex justify-around">
         <div>Users tracked: {{this.users.length}}</div>
         <div>Users online: {{this.users.filter(user => user.online).length}}</div>
       </div>
-      <p class="text-sm text-blue-500 text-center">Tracking started: {{this.trackingStart}}</p>
+      <p class="text-sm text-blue-500 text-center">
+        Tracking started: {{this.trackingStart}}
+      </p>
       <p class="text-sm text-blue-500 text-center">
         Total uptime: {{prettyPrint(this.trackedTime)}}
       </p>
-      <a class="text-sm text-blue-500 text-center block" href="https://github.com/Badtz13/sadpepe" target="_blank">
+
+      <!-- github  -->
+      <a
+        class="text-sm text-blue-500 text-center block"
+        href="https://github.com/Badtz13/sadpepe"
+        target="_blank"
+      >
         Report Issues / Contribute
       </a>
+    </div>
 
-    </div>
+    <!-- display users  -->
     <div v-if="users.length !== 0" class="flex flex-row flex-wrap justify-center">
-      <user
-        v-for="user in shownUsers"
-        :key="user.user"
-        :data="user"
-      />
+      <user v-for="user in shownUsers" :key="user.user" :data="user" />
     </div>
+
+    <!-- loading animation -->
     <div v-else class="flex justify-center mt-12">
       <Donut />
     </div>
@@ -40,8 +57,8 @@
 </template>
 
 <script>
-import * as firebase from 'firebase/app';
 import 'firebase/database';
+import * as firebase from 'firebase/app';
 import User from '@/components/User.vue';
 import Donut from '@/components/Donut.vue';
 
@@ -53,16 +70,17 @@ export default {
   },
   data() {
     return {
-      users: [],
-      serverStart: '',
-      trackingStart: '',
-      trackedTime: '',
-      onlineOnly: true,
-      displayCount: 50,
-      currentFilter: '',
+      users: [], // list of users and their info to be shown
+      serverStart: '', // time the tracking server was restarted
+      trackingStart: '', // time tracking first began
+      trackedTime: '', // amount of time tracked in total
+      onlineOnly: true, // if users should be filtered by online, based on checkbox
+      displayCount: 50, // number of users to show on the page, scrolling to bottom adds to this
+      currentFilter: '', // current value and filter for search box
     };
   },
   methods: {
+    // converts milliseconds to a string in the format xd yh zm
     prettyPrint(milliseconds) {
       let bucket = milliseconds;
       // [['days', 86400000], ['hours', 3600000], ['minutes', 60000], ['seconds', 1000]];
@@ -90,10 +108,15 @@ export default {
       }
       return returnString;
     },
+
+    // calculates time stats given a user's data
     calculateTime(data) {
-      const daysSinceStart = Math.floor((Date.now() - Date.parse(this.trackingStart)) / 86400000);
+      const daysSinceStart = Math.floor(this.trackedTime / 86400000);
 
       let totalUnixTime;
+
+      // if the user is currently connected
+      // make sure to add the time between when they joined and now to their total
       if (data.joined) {
         if (data.time) {
           totalUnixTime = data.time + (Date.now() - data.joined);
@@ -106,35 +129,40 @@ export default {
       return {
         timeDisplay: this.prettyPrint(totalUnixTime),
         totalUnixTime,
-        onlinePercent: Math.round(
-          (((totalUnixTime / (Date.now() - Date.parse(this.trackingStart))) * 100) * 100),
-        ) / 100,
-        average: `${Math.floor((totalUnixTime / daysSinceStart) / 3600000)} h/d`,
+        onlinePercent:
+          Math.round(
+            (totalUnixTime / this.trackedTime)
+              * 100
+              * 100,
+          ) / 100,
+        average: `${Math.floor(totalUnixTime / daysSinceStart / 3600000)} h/d`,
       };
     },
   },
   computed: {
+    // filters users shown based on online checkbox, search box and display count
     shownUsers() {
-      return this.users.filter((user) => {
-        if (this.onlineOnly) {
-          if (!user.online) {
+      return this.users
+        .filter((user) => {
+          if (this.onlineOnly) {
+            if (!user.online) {
+              return false;
+            }
+          }
+          if (
+            !user.user
+              .toLowerCase()
+              .startsWith(this.currentFilter.toLowerCase())
+          ) {
             return false;
           }
-        }
-        if (!user.user.toLowerCase().startsWith(this.currentFilter.toLowerCase())) {
-          return false;
-        }
-        return true;
-      }).slice(0, this.displayCount);
-
-
-      // if (this.onlineOnly) {
-      //   return this.users.filter(user => user.online).slice(0, this.displayCount);
-      // }
-      // return this.users.slice(0, this.displayCount);
+          return true;
+        })
+        .slice(0, this.displayCount);
     },
   },
   mounted() {
+    // fetch server info (runs once)
     firebase
       .database()
       .ref('/info')
@@ -146,6 +174,7 @@ export default {
         this.trackedTime = Date.now() - snapshot.val().trackingStart;
       });
 
+    // fetch user data (runs each time db changes)
     firebase
       .database()
       .ref('/users/')
@@ -160,11 +189,14 @@ export default {
             online: !!usersResult[user].joined,
           });
         });
-        this.users = tempUsers.sort((a, b) => b.data.totalUnixTime - a.data.totalUnixTime);
+        this.users = tempUsers.sort(
+          (a, b) => b.data.totalUnixTime - a.data.totalUnixTime,
+        );
       });
 
+    // add to display count when page is scrolled to the bottom
     window.onscroll = () => {
-      if ((window.innerHeight + window.scrollY) >= document.body.scrollHeight) {
+      if (window.innerHeight + window.scrollY >= document.body.scrollHeight) {
         console.log('Bottom of page');
         this.displayCount += 50;
       }

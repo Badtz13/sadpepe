@@ -13,13 +13,5 @@ export default new Router({
       name: 'home',
       component: Home,
     },
-    // {
-    //   path: '/user:name',
-    //   component: () => import(/* webpackChunkName: "about" */ './views/User.vue'),
-    // },
-    {
-      path: '/data/:user',
-      component: () => import(/* webpackChunkName: "about" */ './views/Data.vue'),
-    },
   ],
 });
