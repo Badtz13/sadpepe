@@ -53,7 +53,7 @@ export default {
     change() {
       if (this.graph.length > 0) {
         const diff = this.graph[this.graph.length - 1] - this.graph[0];
-        return diff >= 0 ? `+${diff}/${this.graph.length}s` : `-${diff}/${this.graph.length}s`;
+        return diff >= 0 ? `+${diff}/${this.graph.length}s` : `${diff}/${this.graph.length}s`;
       }
       return null;
     },
