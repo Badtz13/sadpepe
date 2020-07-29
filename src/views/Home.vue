@@ -22,6 +22,12 @@
         />
       </div>
 
+      <!-- online graph  -->
+      <OnlineGraph
+        :onlineUsers="this.users.filter(user => user.online).length"
+        :totalUsers="this.users.length"
+      />
+
       <!-- information display  -->
       <div class="text-sm text-blue-500 flex justify-around">
         <div>Users tracked: {{this.users.length}}</div>
@@ -61,12 +67,14 @@ import 'firebase/database';
 import * as firebase from 'firebase/app';
 import User from '@/components/User.vue';
 import Donut from '@/components/Donut.vue';
+import OnlineGraph from '@/components/OnlineGraph.vue';
 
 export default {
   name: 'home',
   components: {
     User,
     Donut,
+    OnlineGraph,
   },
   data() {
     return {
