@@ -1,23 +1,29 @@
 <template>
-  <div class="border mt-1">
-    <div
-      :style="{opacity:tooltipShown ? '1' : '0'}"
-      class=" tooltip absolute ml-1"
-    >
-      {{this.graph[this.hoveredBar]}}
+  <div class="border mt-1 graphBox mx-auto">
+    <div class="absolute flex flex-row justify-between displayContainer">
+      <div
+        :style="{opacity:tooltipShown ? '1' : '0'}"
+        class="tooltip mx-1 text-blue-800"
+      >
+        {{this.tooltipText}} users
+      </div>
+
+      <div class="mx-1 text-blue-800">
+        {{change}}
+      </div>
     </div>
-    <svg class="w-full">
+
+    <svg>
       <rect
         v-for="bar in graph.keys()"
         :key="bar"
-        @mouseenter=showTooltip(bar)
-        @mouseleave=hideTooltip()
+        @mouseenter="showTooltip(graph[bar])"
+        @mouseleave="tooltipShown = false"
         :x="8 * bar + 'px'"
         y="0"
         width="8px"
         :height="(graph[bar] / totalUsers) * 100 + '%'"
-        class="cursor-pointer"
-        :style="{fill:hoveredBar === bar ? 'lightblue' : '#4299e1'}"
+        class="cursor-pointer rect"
       />
     </svg>
   </div>
@@ -34,26 +40,32 @@ export default {
     return {
       graph: [],
       tooltipShown: false,
-      hoveredBar: Number,
+      tooltipText: '',
     };
   },
   methods: {
-    showTooltip(bar) {
-      this.hoveredBar = bar;
+    showTooltip(count) {
+      this.tooltipText = count;
       this.tooltipShown = true;
     },
-    hideTooltip() {
-      this.hoveredBar = null;
-      this.tooltipShown = false;
+  },
+  computed: {
+    change() {
+      if (this.graph.length > 0) {
+        const diff = this.graph[this.graph.length - 1] - this.graph[0];
+        return diff >= 0 ? `+${diff}/${this.graph.length}s` : `-${diff}/${this.graph.length}s`;
+      }
+      return null;
     },
   },
   mounted() {
     setInterval(() => {
       if (this.onlineUsers) {
-        if (this.graph.length === 32) {
+        if (this.graph.length === 30) {
           this.graph.shift();
         }
         this.graph.push(this.onlineUsers);
+        // this.graph.push(this.graph.length + 4000);
         // this.graph.push(Math.floor(Math.random() * this.onlineUsers * 5));
       }
     }, 1000);
@@ -62,11 +74,25 @@ export default {
 </script>
 
 <style scoped>
+.graphBox{
+    width: 242px;
+}
+.displayContainer {
+  width: 240px;
+}
 svg {
   height: 64px;
+  width: 240px;
   transform: scaleY(-1);
 }
+.rect {
+  fill: #4299e1;
+}
+
+.rect:hover {
+  fill: lightblue;
+}
 .tooltip {
-  transition: opacity .25s ease-out;
+  transition: opacity 0.25s ease-out;
 }
 </style>
