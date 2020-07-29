@@ -18,6 +18,7 @@
         <input
           v-model="currentFilter"
           autofocus="autofocus"
+          placeholder="Search..."
           class="border rounded py-1 px-2 m-2 focus:outline-none text-blue-600"
         />
       </div>
