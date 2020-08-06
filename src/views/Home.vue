@@ -200,6 +200,10 @@ export default {
         this.users = tempUsers.sort(
           (a, b) => b.data.totalUnixTime - a.data.totalUnixTime,
         );
+
+        for (let i = 0; i < 50; i += 1) {
+          this.users[i].rank = i + 1;
+        }
       });
 
     // add to display count when page is scrolled to the bottom
