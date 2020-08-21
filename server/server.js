@@ -73,9 +73,16 @@ ws.on('message', (data) => {
       } else {
         time = 0;
       }
+      time += (leaveTime - joined);
+      if (Number.isNaN(time)) {
+        console.log(time);
+        console.log(leaveTime);
+        console.log(joined);
+        time = 0;
+      }
       firebase.database().ref(`users/${content.nick}`).update({
         joined: null,
-        time: time + (leaveTime - joined),
+        time,
       });
     });
     console.log(userCount);

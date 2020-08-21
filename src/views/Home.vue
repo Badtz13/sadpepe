@@ -19,7 +19,7 @@
           v-model="currentFilter"
           autofocus="autofocus"
           placeholder="Search..."
-          class="border rounded py-1 px-2 m-2 focus:outline-none text-blue-600"
+          class="border rounded py-1 px-2 m-1 focus:outline-none text-blue-600"
         />
       </div>
 
@@ -35,19 +35,19 @@
         <div>Users online: {{this.users.filter(user => user.online).length}}</div>
       </div>
       <p class="text-sm text-blue-500 text-center">
-        Tracking started: {{this.trackingStart}}
+        <!-- Tracking started: {{this.trackingStart}} -->
+        Total server uptime: {{prettyPrint(this.trackedTime)}}
       </p>
-      <p class="text-sm text-blue-500 text-center">
-        Total uptime: {{prettyPrint(this.trackedTime)}}
-      </p>
-
       <!-- github  -->
+      <p class="text-sm text-blue-500 text-center">
+        Made by Badtz
+      </p>
       <a
         class="text-sm text-blue-500 text-center block"
         href="https://github.com/Badtz13/sadpepe"
         target="_blank"
       >
-        Report Issues / Contribute
+        GitHub
       </a>
     </div>
 
@@ -135,6 +135,8 @@ export default {
       } else {
         totalUnixTime = data.time;
       }
+      const hrsPerDay = Math.floor(totalUnixTime / daysSinceStart / 3600000);
+      const hrsPerDayString = Number.isFinite(hrsPerDay) ? `${hrsPerDay}hr/d` : '';
       return {
         timeDisplay: this.prettyPrint(totalUnixTime),
         totalUnixTime,
@@ -143,7 +145,7 @@ export default {
             (totalUnixTime / (Date.now() - Date.parse(this.trackingStart)))
               * 10000,
           ) / 100,
-        average: `${Math.floor(totalUnixTime / daysSinceStart / 3600000)} h/d`,
+        average: hrsPerDayString,
       };
     },
   },
