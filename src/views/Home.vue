@@ -120,7 +120,8 @@ export default {
 
     // calculates time stats given a user's data
     calculateTime(data) {
-      const daysSinceStart = Math.floor(this.trackedTime / 86400000);
+      let daysSinceStart = Math.floor(this.trackedTime / 86400000);
+      daysSinceStart = daysSinceStart === 0 ? 1 : daysSinceStart;
 
       let totalUnixTime;
 
@@ -135,8 +136,7 @@ export default {
       } else {
         totalUnixTime = data.time;
       }
-      const hrsPerDay = Math.floor(totalUnixTime / daysSinceStart / 3600000);
-      const hrsPerDayString = Number.isFinite(hrsPerDay) ? `${hrsPerDay}hr/d` : '';
+
       return {
         timeDisplay: this.prettyPrint(totalUnixTime),
         totalUnixTime,
@@ -145,7 +145,7 @@ export default {
             (totalUnixTime / (Date.now() - Date.parse(this.trackingStart)))
               * 10000,
           ) / 100,
-        average: hrsPerDayString,
+        average: `${Math.floor(totalUnixTime / daysSinceStart / 3600000)}hr/d`,
       };
     },
   },
