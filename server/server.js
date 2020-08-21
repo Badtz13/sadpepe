@@ -48,7 +48,7 @@ ws.on('message', (data) => {
         joined: startTime,
       });
     });
-    console.log(userCount);
+    console.log('\x1b[34m%s\x1b[0m', `${userCount} users found...`);
 
     // if a user joined ...
   } else if (type === 'JOIN') {
@@ -57,7 +57,7 @@ ws.on('message', (data) => {
     firebase.database().ref(`users/${content.nick}`).update({
       joined: Date.now(),
     });
-    console.log(userCount);
+    console.log('\x1b[32m%s\x1b[0m', `${userCount} + ${content.nick}`);
 
     // if a user quit ...
   } else if (type === 'QUIT') {
@@ -85,7 +85,7 @@ ws.on('message', (data) => {
         time,
       });
     });
-    console.log(userCount);
+    console.log('\x1b[31m%s\x1b[0m', `${userCount} - ${content.nick}`);
 
     // other message types ...
   } else {
