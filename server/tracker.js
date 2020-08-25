@@ -73,8 +73,9 @@ function connect() {
           let userTime = 0;
 
           if (snapshot.val().time) {
-            userTime = snapshot.val().time + (leaveTime - snapshot.val().joined);
+            userTime = snapshot.val().time;
           }
+          userTime += (leaveTime - snapshot.val().joined);
 
           firebase.database().ref(`users/${content.nick}`).update({
             joined: null,
