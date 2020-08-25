@@ -12,4 +12,4 @@ const config = require('./config.js');
 firebase.initializeApp(config);
 
 // delete all info
-firebase.database().ref('users').remove().then(() => firebase.database().ref('info').remove().then(() => console.log('complete')));
+firebase.database().ref('users').remove().then(() => firebase.database().ref('info').remove().then(() => console.log('\x1b[32m%s\x1b[0m', 'complete')));

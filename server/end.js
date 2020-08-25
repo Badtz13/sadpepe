@@ -10,11 +10,6 @@ require('firebase/database');
 // set up firebase connection
 firebase.initializeApp(config);
 
-// null out all old join times
-firebase.database().ref('users/*').update({
-  joined: null,
-});
-
 firebase.database().ref('users').once('value', (snapshot) => {
   const users = snapshot.val();
   const leaveTime = Date.now();
@@ -34,5 +29,5 @@ firebase.database().ref('users').once('value', (snapshot) => {
       });
     }
   });
-  console.log('complete');
+  console.log('\x1b[32m%s\x1b[0m', 'complete');
 });
