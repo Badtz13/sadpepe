@@ -121,7 +121,10 @@ export default {
     // calculates time stats given a user's data
     calculateTime(data) {
       let daysSinceStart = Math.floor(this.trackedTime / 86400000);
-      daysSinceStart = daysSinceStart === 0 ? 1 : daysSinceStart;
+
+      if (daysSinceStart === 0) {
+        daysSinceStart = 1;
+      }
 
       let totalUnixTime;
 
