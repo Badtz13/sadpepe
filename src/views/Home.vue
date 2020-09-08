@@ -206,7 +206,7 @@ export default {
           (a, b) => b.data.totalUnixTime - a.data.totalUnixTime,
         );
 
-        for (let i = 0; i < 50; i += 1) {
+        for (let i = 0; i < 100; i += 1) {
           this.users[i].rank = i + 1;
         }
       });
