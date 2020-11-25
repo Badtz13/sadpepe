@@ -81,11 +81,6 @@ function connect() {
             joined: null,
             time: userTime,
           });
-
-          firebase.database().ref(`users/${content.nick}/history`).push().set({
-            joined: (snapshot.val().joined || null),
-            left: leaveTime,
-          });
         }
       });
 
@@ -93,7 +88,6 @@ function connect() {
       // if they have a joined time
       // calculate time between leaveTime and the joined time
       // time += calculated diff
-      // push to user history
 
       console.log('\x1b[31m%s\x1b[0m', `${prettyTime()}: ${userCount} - ${content.nick}`);
 
