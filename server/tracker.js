@@ -100,7 +100,7 @@ function connect(path, link) {
   ws.on('close', () => {
     console.log('\x1b[31m%s\x1b[0m', `${path}: Socket connected failed`);
     // eslint-disable-next-line no-use-before-define
-    setTimeout(startup, reconnectInterval);
+    setTimeout(init(path, link), reconnectInterval);
   });
 }
 
