@@ -14,7 +14,7 @@
     <div class="mt-4 flex flex-row justify-between">
       <div>{{data.data.timeDisplay}}</div>
       <div>{{data.data.average}}</div>
-      <!-- <div> {{data.data.onlinePercent}}%</div> -->
+      <div>{{onlinePercent}}%</div>
     </div>
   </div>
 </template>
@@ -24,6 +24,15 @@ export default {
   name: 'User',
   props: {
     data: Object,
+    startTime: Number,
+  },
+  computed: {
+    onlinePercent() {
+      const prettyDisplay = Math.round(
+        (this.data.data.totalUnixTime / (Date.now() - this.startTime)) * 100,
+      );
+      return ((prettyDisplay > 100) ? 100 : prettyDisplay);
+    },
   },
 };
 </script>

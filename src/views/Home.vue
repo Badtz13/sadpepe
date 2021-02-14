@@ -13,6 +13,7 @@
           <label for="online" class="text-md text-blue-600">Only Online</label>
           <input type="checkbox" name="online" id="online" v-model="onlineOnly" class="ml-2 mt-1" />
         </div>
+        <!-- site selector -->
         <select
           name="site"
           id="site"
@@ -25,7 +26,6 @@
           <option value="xgg">xgg</option>
         </select>
       </div>
-
 
       <!-- search filter  -->
       <div class="w-full mx-auto flex justify-center">
@@ -50,7 +50,7 @@
       </div>
 
       <p class="text-sm text-blue-500 text-center">
-        <!-- Tracking started: {{this.trackingStart}} -->
+        Tracking started: {{this.trackingStart}}
         Total server uptime: {{prettyPrint(this.trackedTime)}}
       </p>
       <!-- github  -->
@@ -68,7 +68,12 @@
 
     <!-- display users  -->
     <div v-if="users.length !== 0" class="flex flex-row flex-wrap justify-center">
-      <user v-for="user in shownUsers" :key="user.user" :data="user" />
+      <user
+        v-for="user in shownUsers"
+        :key="user.user"
+        :data="user"
+        :startTime="Date.parse(trackingStart)"
+      />
     </div>
 
     <!-- loading animation -->
@@ -157,17 +162,12 @@ export default {
       } else {
         totalUnixTime = data.time;
       }
-      // const hrsPD = Math.floor((totalUnixTime / 3600000) / daysSinceStart);
+      const hrsPD = Math.floor((totalUnixTime / 3600000) / daysSinceStart);
 
       return {
         timeDisplay: this.prettyPrint(totalUnixTime),
         totalUnixTime,
-        // onlinePercent:
-        //   Math.round(
-        //     (totalUnixTime / (Date.now() - Date.parse(this.trackingStart)))
-        //       * 10000,
-        //   ) / 100,
-        // average: `${hrsPD > 24 ? 24 : hrsPD}hr/d`,
+        average: `${hrsPD > 24 ? 24 : hrsPD}hr/d`,
       };
     },
   },
