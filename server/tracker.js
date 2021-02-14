@@ -39,7 +39,7 @@ function prettyTime() {
 
 function connect() {
   // const ws = new WebSocket('ws://localhost:8080');
-  const ws = new WebSocket('wss://www.destiny.gg/ws');
+  const ws = new WebSocket('wss://chat.destiny.gg/ws');
 
   // // on socket message ...
   ws.on('message', (data) => {

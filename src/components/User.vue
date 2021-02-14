@@ -14,7 +14,7 @@
     <div class="mt-4 flex flex-row justify-between">
       <div>{{data.data.timeDisplay}}</div>
       <div>{{data.data.average}}</div>
-      <div> {{data.data.onlinePercent}}%</div>
+      <!-- <div> {{data.data.onlinePercent}}%</div> -->
     </div>
   </div>
 </template>

@@ -139,17 +139,17 @@ export default {
       } else {
         totalUnixTime = data.time;
       }
-      const hrsPD = Math.floor((totalUnixTime / 3600000) / daysSinceStart);
+      // const hrsPD = Math.floor((totalUnixTime / 3600000) / daysSinceStart);
 
       return {
         timeDisplay: this.prettyPrint(totalUnixTime),
         totalUnixTime,
-        onlinePercent:
-          Math.round(
-            (totalUnixTime / (Date.now() - Date.parse(this.trackingStart)))
-              * 10000,
-          ) / 100,
-        average: `${hrsPD > 24 ? 24 : hrsPD}hr/d`,
+        // onlinePercent:
+        //   Math.round(
+        //     (totalUnixTime / (Date.now() - Date.parse(this.trackingStart)))
+        //       * 10000,
+        //   ) / 100,
+        // average: `${hrsPD > 24 ? 24 : hrsPD}hr/d`,
       };
     },
   },
