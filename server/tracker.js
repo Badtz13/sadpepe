@@ -32,14 +32,9 @@ firebase.database().ref('info').update({
   });
 });
 
-function prettyTime() {
-  const date = new Date();
-  return date.toLocaleTimeString().split(' ')[0];
-}
-
-function connect() {
+function connect(path, link) {
   // const ws = new WebSocket('ws://localhost:8080');
-  const ws = new WebSocket('wss://chat.destiny.gg/ws');
+  const ws = new WebSocket(link);
 
   // // on socket message ...
   ws.on('message', (data) => {
@@ -50,25 +45,25 @@ function connect() {
       content.users.forEach((user) => {
         userCount += 1;
         // update joined for each user to startTime of server
-        firebase.database().ref(`users/${user.nick}`).update({
+        firebase.database().ref(`users/${path}/${user.nick}`).update({
           joined: startTime,
         });
       });
-      console.log('\x1b[34m%s\x1b[0m', `${prettyTime()}: ${userCount} users found...`);
+      console.log('\x1b[34m%s\x1b[0m', `${path}: ${userCount} users found...`);
     } else if (type === 'JOIN') { // user joined
       const content = JSON.parse(data.split('JOIN ')[1]);
       userCount += 1;
       const joinedTime = Date.now();
-      firebase.database().ref(`users/${content.nick}`).update({
+      firebase.database().ref(`users/${path}/${content.nick}`).update({
         joined: joinedTime,
       });
-      console.log('\x1b[32m%s\x1b[0m', `${prettyTime()}: ${userCount} + ${content.nick}`);
+      console.log('\x1b[32m%s\x1b[0m', `${path}: ${userCount} + ${content.nick}`);
     } else if (type === 'QUIT') { // user quit
       const content = JSON.parse(data.split('QUIT ')[1]);
       userCount -= 1;
       const leaveTime = Date.now();
 
-      firebase.database().ref(`users/${content.nick}`).once('value').then((snapshot) => {
+      firebase.database().ref(`users/${path}/${content.nick}`).once('value').then((snapshot) => {
         if (snapshot.val().joined) {
           let userTime = 0;
 
@@ -77,7 +72,7 @@ function connect() {
           }
           userTime += (leaveTime - snapshot.val().joined);
 
-          firebase.database().ref(`users/${content.nick}`).update({
+          firebase.database().ref(`users/${path}/${content.nick}`).update({
             joined: null,
             time: userTime,
           });
@@ -89,29 +84,29 @@ function connect() {
       // calculate time between leaveTime and the joined time
       // time += calculated diff
 
-      console.log('\x1b[31m%s\x1b[0m', `${prettyTime()}: ${userCount} - ${content.nick}`);
+      console.log('\x1b[31m%s\x1b[0m', `${path}: ${userCount} - ${content.nick}`);
 
       // other message types ...
     } else if (type === 'MSG' || type === 'BROADCAST' || type === 'MUTE' || type === 'BAN') {
       // do nothin
     } else {
-      console.log(data);
+      console.log(`${path}: ${data}`);
     }
   });
 
   ws.on('open', () => {
-    console.log('\x1b[32m%s\x1b[0m', 'Socket connection established');
+    console.log('\x1b[32m%s\x1b[0m', `${path}: Socket connection established`);
   });
   ws.on('close', () => {
-    console.log('\x1b[31m%s\x1b[0m', 'Socket connected failed');
+    console.log('\x1b[31m%s\x1b[0m', `${path}: Socket connected failed`);
     // eslint-disable-next-line no-use-before-define
-    setTimeout(cleanup, reconnectInterval);
+    setTimeout(startup, reconnectInterval);
   });
 }
 
-function cleanup() {
+function init(path, ws) {
   // re-calculate old times to fix any duplication issues
-  firebase.database().ref('users').once('value', (snapshot) => {
+  firebase.database().ref(`users/${path}`).once('value', (snapshot) => {
     const users = snapshot.val();
     const leaveTime = Date.now();
     if (users) {
@@ -120,21 +115,28 @@ function cleanup() {
         if (user.joined) {
           let time;
           if (user.time) {
-          // eslint-disable-next-line prefer-destructuring
+            // eslint-disable-next-line prefer-destructuring
             time = user.time;
           } else {
             time = 0;
           }
-          firebase.database().ref(`users/${userKey}`).update({
+          firebase.database().ref(`users/${path}/${userKey}`).update({
             joined: null,
             time: time + (leaveTime - user.joined),
           });
         }
       });
     }
-    console.log('\x1b[32m%s\x1b[0m', 'Cleanup complete');
-    connect();
+    console.log('\x1b[32m%s\x1b[0m', `${path}: Cleanup complete`);
+    connect(path, ws);
   });
 }
 
-cleanup();
+function startup() {
+  init('dgg', 'wss://chat.destiny.gg/ws');
+  init('vgg', 'wss://www.vaush.gg/ws');
+  init('dmgg', 'wss://www.demonmama.com/ws');
+  init('xgg', 'wss://www.xanderhal.com/ws');
+}
+
+startup();

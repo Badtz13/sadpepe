@@ -9,9 +9,23 @@
 
       <!-- online filter  -->
       <div class="flex flex-row justify-center">
-        <label for="online" class="text-md text-blue-600">Only show online users</label>
-        <input type="checkbox" name="online" id="online" v-model="onlineOnly" class="ml-2 mt-1" />
+        <div class="mt-3">
+          <label for="online" class="text-md text-blue-600">Only Online</label>
+          <input type="checkbox" name="online" id="online" v-model="onlineOnly" class="ml-2 mt-1" />
+        </div>
+        <select
+          name="site"
+          id="site"
+          v-model="currentSite"
+          class="w-3/6 h-8 border rounded px-2 m-2 focus:outline-none text-blue-600"
+          >
+          <option value="dgg">dgg</option>
+          <option value="vgg">vgg</option>
+          <option value="dmgg">dmgg</option>
+          <option value="xgg">xgg</option>
+        </select>
       </div>
+
 
       <!-- search filter  -->
       <div class="w-full mx-auto flex justify-center">
@@ -23,17 +37,18 @@
         />
       </div>
 
-      <!-- online graph  -->
       <OnlineGraph
-        :onlineUsers="this.users.filter(user => user.online).length"
-        :totalUsers="this.users.length"
+        v-if="this.users[this.currentSite]"
+        :site="this.currentSite"
+        :onlineUsers="this.users[this.currentSite].filter(user => user.online).length"
+        :totalUsers="this.users[this.currentSite].length"
       />
 
-      <!-- information display  -->
-      <div class="text-sm text-blue-500 flex justify-around">
-        <div>Users tracked: {{this.users.length}}</div>
-        <div>Users online: {{this.users.filter(user => user.online).length}}</div>
+      <div v-if="this.users[this.currentSite]" class="text-sm text-blue-500 flex justify-around">
+        <div>Users tracked: {{this.users[this.currentSite].length}}</div>
+        <div>Users online: {{this.users[this.currentSite].filter(user => user.online).length}}</div>
       </div>
+
       <p class="text-sm text-blue-500 text-center">
         <!-- Tracking started: {{this.trackingStart}} -->
         Total server uptime: {{prettyPrint(this.trackedTime)}}
@@ -79,13 +94,16 @@ export default {
   },
   data() {
     return {
-      users: [], // list of users and their info to be shown
+      users: {
+        dgg: [{ name: 'you have slow internet' }],
+      }, // list of users and their info to be shown
       serverStart: '', // time the tracking server was restarted
       trackingStart: '', // time tracking first began
       trackedTime: '', // amount of time tracked in total
       onlineOnly: true, // if users should be filtered by online, based on checkbox
       displayCount: 50, // number of users to show on the page, scrolling to bottom adds to this
       currentFilter: '', // current value and filter for search box
+      currentSite: 'dgg', // current site being viewed
     };
   },
   methods: {
@@ -156,7 +174,7 @@ export default {
   computed: {
     // filters users shown based on online checkbox, search box and display count
     shownUsers() {
-      return this.users
+      return this.users[this.currentSite]
         .filter((user) => {
           if (this.onlineOnly) {
             if (!user.online) {
@@ -176,6 +194,7 @@ export default {
     },
   },
   mounted() {
+    const self = this;
     // fetch server info (runs once)
     firebase
       .database()
@@ -192,24 +211,37 @@ export default {
     firebase
       .database()
       .ref('/users/')
-      .on('value', (settingsSnapshot) => {
-        const tempUsers = [];
-        const usersResult = settingsSnapshot.val();
-        const userKeys = Object.keys(settingsSnapshot.val());
-        userKeys.forEach((user) => {
-          tempUsers.push({
-            user,
-            data: this.calculateTime(usersResult[user]),
-            online: !!usersResult[user].joined,
-          });
-        });
-        this.users = tempUsers.sort(
-          (a, b) => b.data.totalUnixTime - a.data.totalUnixTime,
-        );
+      .on('value', (userSnapshot) => {
+        // get user data from all sites
+        const usersResult = userSnapshot.val();
 
-        for (let i = 0; i < 100; i += 1) {
-          this.users[i].rank = i + 1;
-        }
+        // for each site ...
+        const siteList = Object.keys(usersResult);
+        siteList.forEach((site) => {
+          const tempUsers = [];
+          const userKeys = Object.keys(usersResult[site]);
+
+          // calculate data for each user
+          userKeys.forEach((user) => {
+            tempUsers.push({
+              user,
+              data: this.calculateTime(usersResult[site][user]),
+              online: !!usersResult[site][user].joined,
+            });
+          });
+
+          // sort by stored time
+          self.users[site] = tempUsers.sort(
+            (a, b) => b.data.totalUnixTime - a.data.totalUnixTime,
+          );
+
+          // add ranking numbers for top 100 users,
+          // or users.site.len users if there are less than 100
+          const limit = self.users[site].length > 100 ? 100 : self.users[site].length;
+          for (let i = 0; i < limit; i += 1) {
+            self.users[site][i].rank = i + 1;
+          }
+        });
       });
 
     // add to display count when page is scrolled to the bottom

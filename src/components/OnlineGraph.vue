@@ -35,12 +35,14 @@ export default {
   props: {
     onlineUsers: Number,
     totalUsers: Number,
+    site: String,
   },
   data() {
     return {
       graph: [],
       tooltipShown: false,
       tooltipText: '',
+      currentSite: this.site,
     };
   },
   methods: {
@@ -68,6 +70,11 @@ export default {
         // this.graph.push(this.graph.length + 4000);
         // this.graph.push(Math.floor(Math.random() * this.onlineUsers * 5));
       }
+      if (this.site !== this.currentSite) {
+        this.currentSite = this.site;
+        this.graph = [];
+        this.$forceUpdate();
+      }
     }, 1000);
   },
 };
@@ -86,11 +93,11 @@ svg {
   transform: scaleY(-1);
 }
 .rect {
-  fill: #4299e1;
+  fill: rgba(66, 153, 225,.6);
 }
 
 .rect:hover {
-  fill: lightblue;
+  fill: rgba(66, 153, 225, .9);
 }
 .tooltip {
   transition: opacity 0.25s ease-out;
