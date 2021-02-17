@@ -14,8 +14,6 @@ firebase.initializeApp(config);
 
 const reconnectInterval = 10 * 1000;
 
-let userCount = 0;
-
 const startTime = Date.now();
 
 // update the server start time
@@ -35,6 +33,7 @@ firebase.database().ref('info').update({
 function connect(path, link) {
   // const ws = new WebSocket('ws://localhost:8080');
   const ws = new WebSocket(link);
+  let userCount = 0;
 
   // // on socket message ...
   ws.on('message', (data) => {
