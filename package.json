@@ -9,7 +9,8 @@
     "track": "node ./server/tracker.js",
     "end": "node ./server/end.js",
     "reset": "node ./server/reset.js",
-    "fix": "node ./server/fix.js"
+    "fix": "node ./server/fix.js",
+    "test-server": "node ./server/testServer.js"
   },
   "dependencies": {
     "autoprefixer": "^9.8.4",

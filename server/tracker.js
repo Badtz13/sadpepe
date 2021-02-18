@@ -12,8 +12,6 @@ const config = require('./config.js');
 // set up firebase connection
 firebase.initializeApp(config);
 
-const reconnectInterval = 10 * 1000;
-
 const startTime = Date.now();
 
 // update the server start time
@@ -31,7 +29,6 @@ firebase.database().ref('info').update({
 });
 
 function connect(path, link) {
-  // const ws = new WebSocket('ws://localhost:8080');
   const ws = new WebSocket(link);
   let userCount = 0;
 
@@ -96,11 +93,19 @@ function connect(path, link) {
   ws.on('open', () => {
     console.log('\x1b[32m%s\x1b[0m', `${path}: Socket connection established`);
   });
-  ws.on('close', () => {
-    console.log('\x1b[31m%s\x1b[0m', `${path}: Socket connected failed`);
+
+  function handleClose() {
+    console.log('\x1b[31m%s\x1b[0m', `${path}: Socket connection closed`);
+    ws.removeAllListeners();
     // eslint-disable-next-line no-use-before-define
-    setTimeout(init(path, link), reconnectInterval);
-  });
+    setTimeout(() => { init(path, link); }, 1000);
+  }
+
+  ws.on('close', () => handleClose());
+
+  ws.on('error', () => handleClose());
+
+  ws.on('unexpected-response', () => handleClose());
 }
 
 function init(path, ws) {
@@ -132,10 +137,11 @@ function init(path, ws) {
 }
 
 function startup() {
-  init('dgg', 'wss://chat.destiny.gg/ws');
-  init('vgg', 'wss://www.vaush.gg/ws');
-  init('dmgg', 'wss://www.demonmama.com/ws');
-  init('xgg', 'wss://www.xanderhal.com/ws');
+  // init('dgg', 'wss://chat.destiny.gg/ws');
+  // init('vgg', 'wss://www.vaush.gg/ws');
+  // init('dmgg', 'wss://www.demonmama.com/ws');
+  // init('xgg', 'wss://www.xanderhal.com/ws');
+  init('test', 'ws://localhost:8080');
 }
 
 startup();
