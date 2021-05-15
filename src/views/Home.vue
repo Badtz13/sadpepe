@@ -14,7 +14,7 @@
           <input type="checkbox" name="online" id="online" v-model="onlineOnly" class="ml-2 mt-1" />
         </div>
         <!-- site selector -->
-        <select
+        <!-- <select
           name="site"
           id="site"
           v-model="currentSite"
@@ -24,7 +24,7 @@
           <option value="vgg">vgg</option>
           <option value="dmgg">dmgg</option>
           <option value="xgg">xgg</option>
-        </select>
+        </select> -->
       </div>
 
       <!-- search filter  -->
@@ -170,6 +170,44 @@ export default {
         average: `${hrsPD > 24 ? 24 : hrsPD}hr/d`,
       };
     },
+    getUserData() {
+      const self = this;
+      firebase
+        .database()
+        .ref('/users/')
+        .once('value', (userSnapshot) => {
+        // get user data from all sites
+          const usersResult = userSnapshot.val();
+
+          // for each site ...
+          const siteList = Object.keys(usersResult);
+          siteList.forEach((site) => {
+            const tempUsers = [];
+            const userKeys = Object.keys(usersResult[site]);
+
+            // calculate data for each user
+            userKeys.forEach((user) => {
+              tempUsers.push({
+                user,
+                data: this.calculateTime(usersResult[site][user]),
+                online: !!usersResult[site][user].joined,
+              });
+            });
+
+            // sort by stored time
+            self.users[site] = tempUsers.sort(
+              (a, b) => b.data.totalUnixTime - a.data.totalUnixTime,
+            );
+
+            // add ranking numbers for top 100 users,
+            // or users.site.len users if there are less than 100
+            const limit = self.users[site].length > 100 ? 100 : self.users[site].length;
+            for (let i = 0; i < limit; i += 1) {
+              self.users[site][i].rank = i + 1;
+            }
+          });
+        });
+    },
   },
   computed: {
     // filters users shown based on online checkbox, search box and display count
@@ -194,7 +232,6 @@ export default {
     },
   },
   mounted() {
-    const self = this;
     // fetch server info (runs once)
     firebase
       .database()
@@ -207,42 +244,11 @@ export default {
         this.trackedTime = Date.now() - snapshot.val().trackingStart;
       });
 
-    // fetch user data (runs each time db changes)
-    firebase
-      .database()
-      .ref('/users/')
-      .on('value', (userSnapshot) => {
-        // get user data from all sites
-        const usersResult = userSnapshot.val();
-
-        // for each site ...
-        const siteList = Object.keys(usersResult);
-        siteList.forEach((site) => {
-          const tempUsers = [];
-          const userKeys = Object.keys(usersResult[site]);
-
-          // calculate data for each user
-          userKeys.forEach((user) => {
-            tempUsers.push({
-              user,
-              data: this.calculateTime(usersResult[site][user]),
-              online: !!usersResult[site][user].joined,
-            });
-          });
-
-          // sort by stored time
-          self.users[site] = tempUsers.sort(
-            (a, b) => b.data.totalUnixTime - a.data.totalUnixTime,
-          );
-
-          // add ranking numbers for top 100 users,
-          // or users.site.len users if there are less than 100
-          const limit = self.users[site].length > 100 ? 100 : self.users[site].length;
-          for (let i = 0; i < limit; i += 1) {
-            self.users[site][i].rank = i + 1;
-          }
-        });
-      });
+    // fetch user data
+    this.getUserData();
+    setInterval(() => {
+      this.getUserData();
+    }, 5000);
 
     // add to display count when page is scrolled to the bottom
     window.onscroll = () => {

@@ -96,16 +96,28 @@ function connect(path, link) {
 
   function handleClose() {
     console.log('\x1b[31m%s\x1b[0m', `${path}: Socket connection closed`);
+    ws.close();
+    ws.terminate();
     ws.removeAllListeners();
     // eslint-disable-next-line no-use-before-define
     setTimeout(() => { init(path, link); }, 1000);
   }
 
-  ws.on('close', () => handleClose());
+  ws.on('close', () => {
+    ws.removeAllListeners();
+    handleClose();
+  });
 
-  ws.on('error', () => handleClose());
 
-  ws.on('unexpected-response', () => handleClose());
+  ws.on('error', () => {
+    ws.removeAllListeners();
+    handleClose();
+  });
+
+  ws.on('unexpected-response', () => {
+    ws.removeAllListeners();
+    handleClose();
+  });
 }
 
 function init(path, ws) {
