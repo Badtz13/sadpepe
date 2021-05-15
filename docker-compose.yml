@@ -1,0 +1,10 @@
+version: '3.7'
+services:
+ sadpepe:
+   image: badtz/sadpepe
+   deploy:
+     resources:
+      reservations:
+        cpus: "1"
+      limits:
+        memory: 1G
