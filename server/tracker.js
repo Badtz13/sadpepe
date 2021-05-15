@@ -138,10 +138,6 @@ function init(path, ws) {
 
 function startup() {
   init('dgg', 'wss://chat.destiny.gg/ws');
-  init('vgg', 'wss://www.vaush.gg/ws');
-  init('dmgg', 'wss://www.demonmama.com/ws');
-  init('xgg', 'wss://www.xanderhal.com/ws');
-  // init('test', 'ws://localhost:8080');
 }
 
 startup();
